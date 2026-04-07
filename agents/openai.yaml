@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex Memory Migration"
+  short_description: "Repair Codex threads after API/account switches"
+  default_prompt: "Use $codex-memory-migration to recover Codex threads and workspace memory after switching APIs or accounts."

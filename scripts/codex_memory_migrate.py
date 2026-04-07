@@ -15,15 +15,22 @@ def codex_home() -> Path:
     return Path(os.environ.get("CODEX_HOME", Path.home() / ".codex"))
 
 
+def is_windows_style_path(value: str | None) -> bool:
+    if not value or not isinstance(value, str):
+        return False
+    return value.startswith("\\\\?\\") or bool(re.match(r"^[a-zA-Z]:[\\/]", value))
+
+
 def canonicalize_path(value: str | None) -> str | None:
     if not value or not isinstance(value, str):
         return value
-    value = value.replace("/", "\\")
-    if value.startswith("\\\\?\\"):
-        value = value[4:]
-    match = re.match(r"^([a-zA-Z]):\\", value)
-    if match:
-        value = match.group(1).upper() + value[1:]
+    if is_windows_style_path(value):
+        value = value.replace("/", "\\")
+        if value.startswith("\\\\?\\"):
+            value = value[4:]
+        match = re.match(r"^([a-zA-Z]):\\", value)
+        if match:
+            value = match.group(1).upper() + value[1:]
     return value
 
 
@@ -209,7 +216,7 @@ def main() -> int:
             if row[7] and row[7] > latest_updated and row[3]:
                 latest_updated = row[7]
                 latest_provider = row[3]
-        target_provider = latest_provider or provider_counter.most_common(1)[0][0]
+        target_provider = latest_provider or (provider_counter.most_common(1)[0][0] if provider_counter else None)
 
     plan = []
     visible_roots = set()
